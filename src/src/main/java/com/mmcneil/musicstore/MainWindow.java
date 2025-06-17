@@ -71,16 +71,30 @@ public class MainWindow {
                 try {
                     URL imageUrl = new URL(a.getCoverUrl());
                     ImageIcon icon = new ImageIcon(imageUrl);
-                    Image scaledImg = icon.getImage().getScaledInstance(150,150, Image.SCALE_SMOOTH);
+                    Image scaledImg = icon.getImage().getScaledInstance(180,180, Image.SCALE_SMOOTH);
                     JLabel coverLabel = new JLabel(new ImageIcon(scaledImg));
                     card.add(coverLabel, BorderLayout.CENTER);
                 } catch (Exception ex) {
                     card.add(new JLabel("No Image"), BorderLayout.CENTER);
                 }
+                // Info panel for the title and artist
+                JPanel infoPanel = new JPanel();
+                infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+                infoPanel.setBackground(Color.BLACK);
 
-                JLabel titleLabel = new JLabel(a.getTitle(), SwingConstants.CENTER);
-                titleLabel.setForeground(Color.WHITE);
-                card.add(titleLabel, BorderLayout.SOUTH);
+                JLabel lblTitle = new JLabel(a.getTitle());
+                lblTitle.setForeground(Color.WHITE);
+                lblTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+                JLabel lblArtist = new JLabel(a.getArtist());
+                lblArtist.setForeground(Color.LIGHT_GRAY);
+                lblArtist.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+
+
+                infoPanel.add(lblTitle, BorderLayout.SOUTH);
+                infoPanel.add(lblArtist, BorderLayout.SOUTH);
+                card.add(infoPanel, BorderLayout.SOUTH);
 
                 resultPanel.add(card); // add the result to the search results pane
 
