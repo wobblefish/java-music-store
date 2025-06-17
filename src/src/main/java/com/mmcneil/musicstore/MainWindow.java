@@ -5,11 +5,13 @@ import src.main.java.com.mmcneil.musicstore.model.Album;
 
 import javax.swing.*;
 import java.awt.*;
+import java.net.URL;
 import java.util.List;
 
 public class MainWindow {
 
-    private JTextArea txtResults;
+    private JPanel resultPanel;
+    private JScrollPane scrollPane;
     private static final Color BG_COLOR = Color.DARK_GRAY;
 
     public void createWindow() {
@@ -28,15 +30,15 @@ public class MainWindow {
 
         JLabel lblMain = new JLabel("Welcome to the Music Store", SwingConstants.CENTER);
         JPanel pnlSearch = createSearchPanel();
-        txtResults = new JTextArea(10, 40);
-        txtResults.setEditable(false);
-        JScrollPane scrollPane = new JScrollPane(txtResults);
-        txtResults.setBackground(BG_COLOR);
-        txtResults.setForeground(Color.WHITE);
+        resultPanel = new JPanel(new GridLayout(0, 4,10,10));
+        scrollPane = new JScrollPane(resultPanel);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        resultPanel.setBackground(BG_COLOR);
+        resultPanel.setForeground(Color.WHITE);
 
         panel.add(lblMain, BorderLayout.NORTH);
-        panel.add(pnlSearch, BorderLayout.CENTER);
-        panel.add(scrollPane, BorderLayout.SOUTH);
+        panel.add(pnlSearch, BorderLayout.NORTH);
+        panel.add(scrollPane, BorderLayout.CENTER);
         panel.setBackground(BG_COLOR);
         lblMain.setForeground(Color.WHITE);
 
@@ -53,19 +55,44 @@ public class MainWindow {
         panel.add(btnSearch);
 
         btnSearch.addActionListener(e -> {
+            resultPanel.removeAll();
             String term = txtSearch.getText();
+
+            if (term.isEmpty()) return;
+
             List<Album> results = DeezerClient.getSearchResults(term);
             StringBuilder output = new StringBuilder();
+
             for (Album a : results) {
-                output.append("Title: ").append(a.getTitle()).append("\n")
-                        .append("Artist: ").append(a.getArtist()).append("\n")
-                        .append("Cover: ").append(a.getCoverUrl()).append("\n\n");
+                JPanel card = new JPanel(new BorderLayout());
+                card.setBackground(Color.BLACK);
+                card.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+
+                try {
+                    URL imageUrl = new URL(a.getCoverUrl());
+                    ImageIcon icon = new ImageIcon(imageUrl);
+                    Image scaledImg = icon.getImage().getScaledInstance(150,150, Image.SCALE_SMOOTH);
+                    JLabel coverLabel = new JLabel(new ImageIcon(scaledImg));
+                    card.add(coverLabel, BorderLayout.CENTER);
+                } catch (Exception ex) {
+                    card.add(new JLabel("No Image"), BorderLayout.CENTER);
+                }
+
+                JLabel titleLabel = new JLabel(a.getTitle(), SwingConstants.CENTER);
+                titleLabel.setForeground(Color.WHITE);
+                card.add(titleLabel, BorderLayout.SOUTH);
+
+                resultPanel.add(card); // add the result to the search results pane
+
             }
-            txtResults.setText(output.toString());
+            resultPanel.revalidate();
+            resultPanel.repaint();
         });
 
         return panel;
     }
+
+    // Create a panel that we will hold visual search results in
 }
 
 
