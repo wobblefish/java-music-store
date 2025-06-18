@@ -1,7 +1,4 @@
-package src.main.java.com.mmcneil.musicstore;
-
-import javax.swing.*;
-import java.awt.*;
+package com.mmcneil.musicstore;
 
 public class Main {
 

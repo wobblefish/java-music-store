@@ -1,4 +1,4 @@
-package src.main.java.com.mmcneil.musicstore.model;
+package com.mmcneil.musicstore.model;
 
 public class DeezerTrack {
     private String id;

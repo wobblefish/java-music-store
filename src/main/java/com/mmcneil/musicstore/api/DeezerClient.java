@@ -1,11 +1,11 @@
-package src.main.java.com.mmcneil.musicstore.api;
+package com.mmcneil.musicstore.api;
 
 import com.google.gson.Gson;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
-import src.main.java.com.mmcneil.musicstore.model.Album;
-import src.main.java.com.mmcneil.musicstore.model.DeezerResponse;
-import src.main.java.com.mmcneil.musicstore.model.DeezerTrack;
+import com.mmcneil.musicstore.model.Album;
+import com.mmcneil.musicstore.model.DeezerResponse;
+import com.mmcneil.musicstore.model.DeezerTrack;
 
 import java.util.ArrayList;
 import java.util.List;
