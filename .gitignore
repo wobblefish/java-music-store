@@ -5,6 +5,9 @@ out/
 .idea/
 *.iml
 
+# Maven/Gradle build output
+target/
+
 ### Eclipse ###
 .apt_generated
 .classpath

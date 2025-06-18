@@ -5,9 +5,12 @@ import com.mmcneil.musicstore.model.Album;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainWindow {
@@ -15,6 +18,9 @@ public class MainWindow {
     private JPanel resultPanel;
     private JFrame frame;
     private static final Color BG_COLOR = Color.DARK_GRAY;
+    private List<Album> results = new ArrayList<>();
+    private static final int cardWidth = 160;
+    private static final int cardHeight = 200;
 
     public void createWindow() {
         frame = new JFrame("Music Store");
@@ -25,6 +31,14 @@ public class MainWindow {
         frame.add(panel);
 
         frame.setVisible(true);
+        frame.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                resultPanel.setPreferredSize(calculateResultPanelHeight(results));
+                resultPanel.revalidate();
+                resultPanel.repaint();
+            }
+        });
     }
 
     private JPanel createMainPanel() {
@@ -75,7 +89,7 @@ public class MainWindow {
 
             if (term.isEmpty()) return;
 
-            List<Album> results = DeezerClient.getSearchResults(term);
+            results = DeezerClient.getSearchResults(term);
             StringBuilder output = new StringBuilder();
 
             for (Album a : results) {
@@ -118,25 +132,26 @@ public class MainWindow {
                 infoPanel.add(Box.createVerticalStrut(4));
                 infoPanel.add(lblArtist);
 
-
                 card.add(infoPanel, BorderLayout.SOUTH);
-
                 resultPanel.add(card); // add the result to the search results pane
-
             }
             // Calculate how many cards fit per row, including spacing
-            int availableWidth = frame.getContentPane().getWidth();
-            int cardsPerRow = Math.max(1, availableWidth / cardWidth); // avoid divide by zero
-            int numRows = (int) Math.ceil((double)results.size() / cardsPerRow);
-            int calculatedHeight = numRows * cardHeight + Math.max(0, (numRows - 1) * 10) + 20; // 10 is vertical gap
-
-            resultPanel.setPreferredSize(new Dimension(availableWidth, calculatedHeight));
+            Dimension resultPanelDimensions = calculateResultPanelHeight(results);
+            resultPanel.setPreferredSize(resultPanelDimensions);
             resultPanel.revalidate();
             resultPanel.repaint();
-            
         });
-
         return panel;
+    }
+
+    // helper method to calculate the needed height for the resultHandler like above
+    private Dimension calculateResultPanelHeight(List<Album> results) {
+        int availableWidth = frame.getContentPane().getWidth();
+        int cardsPerRow = Math.max(1, availableWidth / cardWidth); // avoid divide by zero
+        int numRows = (int) Math.ceil((double)results.size() / cardsPerRow);
+        int calculatedHeight = numRows * cardHeight + Math.max(0, (numRows - 1) * 10) + 20; // 10 is vertical gap
+
+        return new Dimension(availableWidth, calculatedHeight);
     }
 
     private void showAlbumDetails(Album album) {
@@ -183,8 +198,5 @@ public class MainWindow {
 
         dialogModal.setLocationRelativeTo(null);
         dialogModal.setVisible(true);
-
     }
-
-    // Create a panel that we will hold visual search results in
 }
