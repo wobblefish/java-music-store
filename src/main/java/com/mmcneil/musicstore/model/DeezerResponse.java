@@ -1,10 +1,10 @@
 package com.mmcneil.musicstore.model;
 import java.util.List;
 
-public class DeezerResponse {
-    private List<DeezerTrack> data;
+public class DeezerResponse<T> {
+    private List<T> data;
 
-    public List<DeezerTrack> getData() {
+    public List<T> getData() {
         return data;
     }
 }

@@ -2,14 +2,15 @@ package com.mmcneil.musicstore.model;
 
 public class Album {
     private String title;
-    private String artist;
+    private DeezerArtist artist;
     private String coverUrl;
+    private String cover_medium;
     private String id;
 
     private double price;
     private int quantity;
 
-    public Album(String id, String title, String artist, String coverUrl) {
+    public Album(String id, String title, DeezerArtist artist, String coverUrl) {
         this.id = id;
         this.title = title;
         this.artist = artist;
@@ -19,8 +20,9 @@ public class Album {
     }
 
     public String getTitle() { return title; }
-    public String getArtist() { return artist; }
+    public DeezerArtist getArtist() { return artist; }
     public String getCoverUrl() { return coverUrl; }
+    public String getCover_medium() { return cover_medium; }
     public String getId() { return id; }
     public double getPrice() { return price; }
     public int getQuantity() { return quantity; }
