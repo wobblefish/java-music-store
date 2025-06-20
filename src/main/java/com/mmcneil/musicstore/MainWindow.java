@@ -216,6 +216,51 @@ public class MainWindow {
         lblArtist.setForeground(Color.LIGHT_GRAY);
         lblArtist.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+
+        //show type
+        JLabel lblType = new JLabel("Type: " + release.getType());
+        lblType.setForeground(Color.LIGHT_GRAY);
+        lblType.setAlignmentX(Component.CENTER_ALIGNMENT);
+        pnlModalContent.add(lblType);
+
+        // Anything that differs between track and album views
+        if (release instanceof Track) {
+            Track track = (Track) release;
+            // show duration
+            JLabel lblDuration = new JLabel("Duration: " + track.getDuration());
+            lblDuration.setForeground(Color.LIGHT_GRAY);
+            lblDuration.setAlignmentX(Component.CENTER_ALIGNMENT);
+            pnlModalContent.add(lblDuration);
+        } else if (release instanceof Album) {
+            Album album = (Album) release;
+
+            // show label
+            JLabel lblLabel = new JLabel("Label: " + album.getLabel());
+            lblLabel.setForeground(Color.LIGHT_GRAY);
+            lblLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            pnlModalContent.add(lblLabel);
+
+            // show tracklist (if available)
+            List<Track> tracks = DeezerClient.getAlbumTracks(album.getTracklist());
+            if (tracks != null && !tracks.isEmpty()) {
+                JLabel lblTracklist = new JLabel("Tracklist:");
+                lblTracklist.setForeground(Color.LIGHT_GRAY);
+                lblTracklist.setAlignmentX(Component.CENTER_ALIGNMENT);
+                pnlModalContent.add(lblTracklist);
+                for (Track t : tracks) {
+                    JLabel lblTrack = new JLabel(t.getPaddedTrackPosition() + ". " + t.getTitle() + " (" + t.getArtist() + ")");
+                    lblTrack.setForeground(Color.LIGHT_GRAY);
+                    lblTrack.setAlignmentX(Component.CENTER_ALIGNMENT);
+                    pnlModalContent.add(lblTrack);
+                }
+            } else {
+                JLabel lblNoTracks = new JLabel("No tracks available.");
+                lblNoTracks.setForeground(Color.LIGHT_GRAY);
+                lblNoTracks.setAlignmentX(Component.CENTER_ALIGNMENT);
+                pnlModalContent.add(lblNoTracks);
+            }
+        }
+
         pnlModalContent.add(Box.createRigidArea(new Dimension(0,10)));
         pnlModalContent.add(lblTitle);
         pnlModalContent.add(lblArtist);

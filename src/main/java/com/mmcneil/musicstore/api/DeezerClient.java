@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import com.mmcneil.musicstore.model.Album;
 import com.mmcneil.musicstore.model.DeezerResponse;
 import com.mmcneil.musicstore.model.Track;
+import com.mmcneil.musicstore.model.Tracklist;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 
@@ -39,5 +40,17 @@ public class DeezerClient {
             albumList.addAll(result.getData());
         }
         return albumList;
+    }
+
+    public static List<Track> getAlbumTracks(String tracklistUrl) {
+        List<Track> tracks = new ArrayList<>();
+        HttpResponse<String> response = Unirest.get(tracklistUrl).asString();
+        String json = response.getBody();
+        Gson gson = new Gson();
+        Tracklist tracklist = gson.fromJson(json, Tracklist.class);
+        if (tracklist != null && tracklist.getData() != null) {
+            tracks.addAll(tracklist.getData());
+        }
+        return tracks;
     }
 }

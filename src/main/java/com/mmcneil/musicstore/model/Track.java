@@ -1,11 +1,15 @@
 package com.mmcneil.musicstore.model;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Track implements Release {
     private String id;
     private String title;
     private Artist artist;
     private Album album;
     private int duration;
+    @SerializedName("track_position")
+    private int trackPosition;
     private String preview;
 
 
@@ -17,6 +21,14 @@ public class Track implements Release {
 
     @Override
     public String getArtist() { return artist != null ? artist.getName() : ""; }
+
+    public int getDuration() { return duration; }
+    
+    public int getTrackPosition() { return trackPosition; }
+
+    public String getPaddedTrackPosition() {
+        return String.format("%02d", trackPosition);
+    }
 
     @Override
     public String getCoverSmall() { return album != null ? album.getCoverSmall() : ""; }
@@ -32,9 +44,9 @@ public class Track implements Release {
     public String getPictureMedium() { return album != null ? album.getPictureMedium() : ""; }
     @Override
     public String getPictureBig() { return album != null ? album.getPictureBig() : ""; }
+
     @Override
     public String getPictureXl() { return album != null ? album.getPictureXl() : ""; }
-
     @Override
     public String getType() { return "track"; }
 
