@@ -2,7 +2,8 @@ package com.mmcneil.musicstore;
 
 import com.mmcneil.musicstore.api.DeezerClient;
 import com.mmcneil.musicstore.model.Album;
-import com.mmcneil.musicstore.model.DeezerTrack;
+import com.mmcneil.musicstore.model.Release;
+import com.mmcneil.musicstore.model.Track;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,7 +21,7 @@ public class MainWindow {
     private JFrame frame;
     private JTextField txtSearch;
     private static final Color BG_COLOR = Color.DARK_GRAY;
-    private List<DeezerTrack> trackResults = new ArrayList<>();
+    private List<Track> trackResults = new ArrayList<>();
     private List<Album> albumResults = new ArrayList<>();
     private static final int cardWidth = 160;
     private static final int cardHeight = 200;
@@ -99,31 +100,31 @@ public class MainWindow {
         btnSearch.addActionListener(e -> {
             if (rbAlbums.isSelected()) {
                 albumResults = DeezerClient.getAlbumSearchResults(txtSearch.getText());
-                renderAlbums(albumResults);
+                renderRelease(new ArrayList<>(albumResults));
             } else {
                 trackResults = DeezerClient.getTrackSearchResults(txtSearch.getText());
-                renderTracks(trackResults);
+                renderRelease(new ArrayList<>(trackResults));
             }
         });
         txtSearch.addActionListener(e -> {
             if (rbAlbums.isSelected()) {
                 albumResults = DeezerClient.getAlbumSearchResults(txtSearch.getText());
-                renderAlbums(albumResults);
+                renderRelease(new ArrayList<>(albumResults));
             } else {
                 trackResults = DeezerClient.getTrackSearchResults(txtSearch.getText());
-                renderTracks(trackResults);
+                renderRelease(new ArrayList<>(trackResults));
             }
         });
 
         return panel;
     }
-    
-    private void renderTracks(List<DeezerTrack> tracks) {
+
+    private void renderRelease(List<Release> results) {
         resultPanel.removeAll();
         int cardWidth = 160;
         int cardHeight = 200;
 
-        for (DeezerTrack track : tracks) {
+        for (Release release : results) {
             JPanel card = new JPanel(new BorderLayout());
             card.setBackground(Color.BLACK);
             card.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
@@ -132,12 +133,12 @@ public class MainWindow {
             card.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
-                    showReleaseDetails(track);
+                    showReleaseDetails(release);
                 }
             });
 
             try {
-                URL imageUrl = new URL(track.getAlbum().getCover_medium());
+                URL imageUrl = new URL(release.getCoverMedium());
                 ImageIcon icon = new ImageIcon(imageUrl);
                 Image scaledImg = icon.getImage().getScaledInstance(150,150, Image.SCALE_SMOOTH);
                 JLabel coverLabel = new JLabel(new ImageIcon(scaledImg));
@@ -150,11 +151,11 @@ public class MainWindow {
             infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
             infoPanel.setBackground(Color.BLACK);
 
-            JLabel lblTitle = new JLabel(track.getTitle());
+            JLabel lblTitle = new JLabel(release.getTitle());
             lblTitle.setForeground(Color.WHITE);
             lblTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-            JLabel lblArtist = new JLabel(track.getArtist().getName());
+            JLabel lblArtist = new JLabel(release.getArtist());
             lblArtist.setForeground(Color.LIGHT_GRAY);
             lblArtist.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -173,65 +174,6 @@ public class MainWindow {
         resultPanel.repaint();
     }
 
-    private void renderAlbums(List<Album> albums) {
-        resultPanel.removeAll();
-        int cardWidth = 160;
-        int cardHeight = 200;
-
-        for (Album album : albums) {
-            JPanel card = new JPanel(new BorderLayout());
-            card.setBackground(Color.BLACK);
-            card.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
-            card.setPreferredSize(new Dimension(cardWidth, cardHeight));
-
-            card.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    showReleaseDetails(album);
-                }
-            });
-
-            try {
-                String coverUrl = album.getCover_medium();
-                if (coverUrl != null && !coverUrl.isEmpty()) {
-                    URL imageUrl = new URL(coverUrl);
-                    ImageIcon icon = new ImageIcon(imageUrl);
-                    Image scaledImg = icon.getImage().getScaledInstance(150,150, Image.SCALE_SMOOTH);
-                    JLabel coverLabel = new JLabel(new ImageIcon(scaledImg));
-                    card.add(coverLabel, BorderLayout.CENTER);
-                } else {
-                    card.add(new JLabel("No Image"), BorderLayout.CENTER);
-                }
-            } catch (Exception ex) {
-                card.add(new JLabel("No Image"), BorderLayout.CENTER);
-            }
-
-            JPanel infoPanel = new JPanel();
-            infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
-            infoPanel.setBackground(Color.BLACK);
-
-            JLabel lblTitle = new JLabel(album.getTitle());
-            lblTitle.setForeground(Color.WHITE);
-            lblTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-            JLabel lblArtist = new JLabel(album.getArtist().getName());
-            lblArtist.setForeground(Color.LIGHT_GRAY);
-            lblArtist.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-            infoPanel.add(lblTitle);
-            infoPanel.add(Box.createVerticalStrut(4));
-            infoPanel.add(lblArtist);
-
-            card.add(infoPanel, BorderLayout.SOUTH);
-            resultPanel.add(card);
-        }
-
-        Dimension resultPanelDimensions = calculateResultPanelHeight(albums);
-        resultPanel.setPreferredSize(resultPanelDimensions);
-        resultPanel.revalidate();
-        resultPanel.repaint();
-    }
-
     // helper method to calculate the needed height for the resultHandler like above
     private Dimension calculateResultPanelHeight(List<?> results) {
         int availableWidth = frame.getContentPane().getWidth();
@@ -242,7 +184,7 @@ public class MainWindow {
         return new Dimension(availableWidth, calculatedHeight);
     }
 
-    private void showReleaseDetails(DeezerTrack track) {
+    private void showReleaseDetails(Release release) {
         JDialog dialogModal = new JDialog((Frame) null, "Album Details", true);
         dialogModal.setSize(400, 500);
         dialogModal.setLayout(new BorderLayout());
@@ -253,7 +195,7 @@ public class MainWindow {
         pnlModalContent.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
 
         try {
-            URL imageUrl = new URL(track.getAlbum().getCover_medium());
+            URL imageUrl = new URL(release.getCoverMedium());
             ImageIcon icon = new ImageIcon((imageUrl));
             Image scaledImg = icon.getImage().getScaledInstance(300,300, Image.SCALE_SMOOTH);
             JLabel coverLabel = new JLabel(new ImageIcon(scaledImg));
@@ -266,11 +208,11 @@ public class MainWindow {
             pnlModalContent.add(lblError);
         }
 
-        JLabel lblTitle = new JLabel(track.getTitle());
+        JLabel lblTitle = new JLabel(release.getTitle());
         lblTitle.setForeground(Color.WHITE);
         lblTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel lblArtist = new JLabel(track.getArtist().getName());
+        JLabel lblArtist = new JLabel(release.getArtist());
         lblArtist.setForeground(Color.LIGHT_GRAY);
         lblArtist.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -299,7 +241,7 @@ public class MainWindow {
         pnlModalContent.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
 
         try {
-            URL imageUrl = new URL(album.getCoverUrl());
+            URL imageUrl = new URL(album.getCoverMedium());
             ImageIcon icon = new ImageIcon((imageUrl));
             Image scaledImg = icon.getImage().getScaledInstance(300,300, Image.SCALE_SMOOTH);
             JLabel coverLabel = new JLabel(new ImageIcon(scaledImg));
@@ -316,7 +258,7 @@ public class MainWindow {
         lblTitle.setForeground(Color.WHITE);
         lblTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel lblArtist = new JLabel(album.getArtist().getName());
+        JLabel lblArtist = new JLabel(album.getArtist());
         lblArtist.setForeground(Color.LIGHT_GRAY);
         lblArtist.setAlignmentX(Component.CENTER_ALIGNMENT);
 

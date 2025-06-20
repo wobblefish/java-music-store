@@ -1,16 +1,19 @@
 package com.mmcneil.musicstore.model;
 
-public class Album {
+import com.google.gson.annotations.SerializedName;
+
+public class Album implements Release {
     private String title;
-    private DeezerArtist artist;
+    private Artist artist;
     private String coverUrl;
-    private String cover_medium;
+    @SerializedName("cover_medium")
+    private String coverMedium;
     private String id;
 
     private double price;
     private int quantity;
 
-    public Album(String id, String title, DeezerArtist artist, String coverUrl) {
+    public Album(String id, String title, Artist artist, String coverUrl) {
         this.id = id;
         this.title = title;
         this.artist = artist;
@@ -19,15 +22,43 @@ public class Album {
         this.quantity = 1;
     }
 
-    public String getTitle() { return title; }
-    public DeezerArtist getArtist() { return artist; }
-    public String getCoverUrl() { return coverUrl; }
-    public String getCover_medium() { return cover_medium; }
+    @Override
     public String getId() { return id; }
+
+    @Override
+    public String getTitle() { return title; }
+
+    @Override
+    public String getArtist() { return artist != null ? artist.getName() : ""; }
+
+    @Override
+    public String getCoverSmall() { return coverUrl; }
+    @Override
+    public String getCoverMedium() { return coverMedium; }
+    @Override
+    public String getCoverBig() { return coverMedium; }
+    @Override
+    public String getCoverXl() { return coverMedium; }
+    @Override
+    public String getPictureSmall() { return coverMedium; }
+    @Override
+    public String getPictureMedium() { return coverMedium; }
+    @Override
+    public String getPictureBig() { return coverMedium; }
+    @Override
+    public String getPictureXl() { return coverMedium; }
+
+    @Override
+    public String getType() { return "album"; }
+
+    public String getCoverUrl() { return coverUrl; }
+
     public double getPrice() { return price; }
+
     public int getQuantity() { return quantity; }
 
     public void setQuantity(int quantity) { this.quantity = quantity; }
+
     public void setPrice(int quantity) { this.quantity = quantity; }
 
     @Override

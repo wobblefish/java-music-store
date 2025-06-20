@@ -1,6 +1,6 @@
 package com.mmcneil.musicstore.model;
 
-public class DeezerArtist {
+public class Artist {
     private String name;
 
     public String getName() {
