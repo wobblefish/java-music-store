@@ -1,7 +1,7 @@
 package com.mmcneil.musicstore.model;
 
 public interface Release {
-    String getId();
+    int getId();
     String getTitle();
     String getArtist();
     String getCoverSmall();

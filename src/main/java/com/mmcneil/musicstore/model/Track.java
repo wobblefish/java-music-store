@@ -3,7 +3,7 @@ package com.mmcneil.musicstore.model;
 import com.google.gson.annotations.SerializedName;
 
 public class Track implements Release {
-    private String id;
+    private int id;
     private String title;
     private Artist artist;
     private Album album;
@@ -14,7 +14,7 @@ public class Track implements Release {
 
 
     @Override
-    public String getId() { return id; }
+    public int getId() { return id; }
 
     @Override
     public String getTitle() { return title; }
@@ -29,6 +29,8 @@ public class Track implements Release {
     public String getPaddedTrackPosition() {
         return String.format("%02d", trackPosition);
     }
+
+    public String getPreview() { return preview; }
 
     @Override
     public String getCoverSmall() { return album != null ? album.getCoverSmall() : ""; }

@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
 public class Album implements Release {
-    private String id;
+    private int id;
     private String title;
     private Artist artist;
     private String coverUrl;
@@ -27,7 +27,7 @@ public class Album implements Release {
     private String pictureXl;
     @SerializedName("genre_id")
     private int genreId;
-    private List<Genre> genres;
+    private Genres genres;
     private String label;
     @SerializedName("nb_tracks")
     private int nbTracks;
@@ -43,12 +43,12 @@ public class Album implements Release {
     @SerializedName("explicit_content_cover")
     private int explicitContentCover;
     private List<Artist> contributors;
-    private List<Track> tracks;
+    private Tracks tracks;
 
     private double price;
     private int quantity;
     
-    public Album(String id, String title, Artist artist, String coverUrl) {
+    public Album(int id, String title, Artist artist, String coverUrl) {
         this.id = id;
         this.title = title;
         this.artist = artist;
@@ -58,7 +58,7 @@ public class Album implements Release {
     }
 
     @Override
-    public String getId() { return id; }
+    public int getId() { return id; }
 
     @Override
     public String getTitle() { return title; }
@@ -106,10 +106,9 @@ public class Album implements Release {
 
     public List<Artist> getContributors() { return contributors; }
 
-    public List<Track> getTracks() { return tracks; }
+    public Tracks getTracks() { return tracks; }
 
-    public List<Genre> getGenres() { return genres; }
-
+    public Genres getGenres() { return genres; }
 
     @Override
     public String toString() {

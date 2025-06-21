@@ -53,4 +53,14 @@ public class DeezerClient {
         }
         return tracks;
     }
+
+    public static Album getAlbumDetails(int albumId) {
+        String url = "https://api.deezer.com/album/" + albumId;
+        HttpResponse<String> response = Unirest.get(url).asString();
+        System.out.println("=== RAW JSON ===");
+        System.out.println(response.getBody());
+        System.out.println("=== END RAW JSON ===");
+        Gson gson = new Gson();
+        return gson.fromJson(response.getBody(), Album.class);
+    }
 }

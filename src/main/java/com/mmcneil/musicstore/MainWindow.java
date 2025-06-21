@@ -11,6 +11,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -221,10 +222,14 @@ public class MainWindow {
         JLabel lblType = new JLabel("Type: " + release.getType());
         lblType.setForeground(Color.LIGHT_GRAY);
         lblType.setAlignmentX(Component.CENTER_ALIGNMENT);
+        pnlModalContent.add(lblTitle);
+        pnlModalContent.add(lblArtist);
+        pnlModalContent.add(Box.createRigidArea(new Dimension(0,10)));
         pnlModalContent.add(lblType);
 
         // Anything that differs between track and album views
         if (release instanceof Track) {
+            // Specific handling for tracks
             Track track = (Track) release;
             // show duration
             JLabel lblDuration = new JLabel("Duration: " + track.getDuration());
@@ -232,25 +237,41 @@ public class MainWindow {
             lblDuration.setAlignmentX(Component.CENTER_ALIGNMENT);
             pnlModalContent.add(lblDuration);
         } else if (release instanceof Album) {
+            // Specific handling for albums
             Album album = (Album) release;
 
             // show label
-            JLabel lblLabel = new JLabel("Label: " + album.getLabel());
+            Album fullAlbum = DeezerClient.getAlbumDetails(album.getId());
+            String label = fullAlbum.getLabel();
+            JLabel lblLabel = new JLabel("Label: " + label);
             lblLabel.setForeground(Color.LIGHT_GRAY);
             lblLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
             pnlModalContent.add(lblLabel);
-
+            
             // show tracklist (if available)
             List<Track> tracks = DeezerClient.getAlbumTracks(album.getTracklist());
             if (tracks != null && !tracks.isEmpty()) {
+                pnlModalContent.add(Box.createVerticalStrut(12));
                 JLabel lblTracklist = new JLabel("Tracklist:");
                 lblTracklist.setForeground(Color.LIGHT_GRAY);
                 lblTracklist.setAlignmentX(Component.CENTER_ALIGNMENT);
                 pnlModalContent.add(lblTracklist);
                 for (Track t : tracks) {
                     JLabel lblTrack = new JLabel(t.getPaddedTrackPosition() + ". " + t.getTitle() + " (" + t.getArtist() + ")");
+                    lblTrack.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                     lblTrack.setForeground(Color.LIGHT_GRAY);
                     lblTrack.setAlignmentX(Component.CENTER_ALIGNMENT);
+                    String previewUrl = t.getPreview();
+                    lblTrack.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mouseClicked(MouseEvent e) {
+                            try {
+                                Desktop.getDesktop().browse(new URI(previewUrl));
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    });
                     pnlModalContent.add(lblTrack);
                 }
             } else {
@@ -259,13 +280,14 @@ public class MainWindow {
                 lblNoTracks.setAlignmentX(Component.CENTER_ALIGNMENT);
                 pnlModalContent.add(lblNoTracks);
             }
+            
         }
 
-        pnlModalContent.add(Box.createRigidArea(new Dimension(0,10)));
-        pnlModalContent.add(lblTitle);
-        pnlModalContent.add(lblArtist);
 
-        dialogModal.add(pnlModalContent, BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(pnlModalContent);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setBorder(null); // Optional: removes the default border for cleaner look
+        dialogModal.add(scrollPane, BorderLayout.CENTER);
 
         JButton btnCloseModal = new JButton("Close");
         btnCloseModal.addActionListener(e -> dialogModal.dispose());
