@@ -187,7 +187,6 @@ public class MainWindow {
 
     private void showReleaseDetails(Release release) {
         JDialog dialogModal = new JDialog((Frame) null, "Album Details", true);
-        dialogModal.setSize(400, 500);
         dialogModal.setLayout(new BorderLayout());
 
         JPanel pnlModalContent = new JPanel();
@@ -293,51 +292,15 @@ public class MainWindow {
         btnCloseModal.addActionListener(e -> dialogModal.dispose());
         dialogModal.add(btnCloseModal, BorderLayout.SOUTH);
 
-        dialogModal.setLocationRelativeTo(null);
-        dialogModal.setVisible(true);
-    }
-
-    private void showReleaseDetails(Album album) {
-        JDialog dialogModal = new JDialog((Frame) null, "Album Details", true);
-        dialogModal.setSize(400, 500);
-        dialogModal.setLayout(new BorderLayout());
-
-        JPanel pnlModalContent = new JPanel();
-        pnlModalContent.setLayout(new BoxLayout(pnlModalContent, BoxLayout.Y_AXIS));
-        pnlModalContent.setBackground(BG_COLOR);
-        pnlModalContent.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
-
-        try {
-            URL imageUrl = new URL(album.getCoverMedium());
-            ImageIcon icon = new ImageIcon((imageUrl));
-            Image scaledImg = icon.getImage().getScaledInstance(300,300, Image.SCALE_SMOOTH);
-            JLabel coverLabel = new JLabel(new ImageIcon(scaledImg));
-            coverLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-            pnlModalContent.add(coverLabel);
-        } catch (Exception ex) {
-            JLabel lblError = new JLabel("No Image Available");
-            lblError.setForeground(Color.WHITE);
-            lblError.setAlignmentX(Component.CENTER_ALIGNMENT);
-            pnlModalContent.add(lblError);
-        }
-
-        JLabel lblTitle = new JLabel(album.getTitle());
-        lblTitle.setForeground(Color.WHITE);
-        lblTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        JLabel lblArtist = new JLabel(album.getArtist());
-        lblArtist.setForeground(Color.LIGHT_GRAY);
-        lblArtist.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        pnlModalContent.add(Box.createRigidArea(new Dimension(0,10)));
-        pnlModalContent.add(lblTitle);
-        pnlModalContent.add(lblArtist);
-
-        dialogModal.add(pnlModalContent, BorderLayout.CENTER);
-
-        JButton btnCloseModal = new JButton("Close");
-        btnCloseModal.addActionListener(e -> dialogModal.dispose());
-        dialogModal.add(btnCloseModal, BorderLayout.SOUTH);
+        // Responsive sizing
+        dialogModal.pack();
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int maxWidth = (int) (screenSize.width * 0.8);
+        int maxHeight = (int) (screenSize.height * 0.8);
+        Dimension preferred = dialogModal.getPreferredSize();
+        int width = Math.min(preferred.width, maxWidth);
+        int height = Math.min(preferred.height, maxHeight);
+        dialogModal.setSize(width, height);
 
         dialogModal.setLocationRelativeTo(null);
         dialogModal.setVisible(true);
