@@ -255,7 +255,28 @@ public class MainWindow {
                 lblTracklist.setForeground(Color.LIGHT_GRAY);
                 lblTracklist.setAlignmentX(Component.CENTER_ALIGNMENT);
                 pnlModalContent.add(lblTracklist);
+
+                boolean hasMultipleDisks = tracks.stream()
+                        .map(Track::getDiskNumber)
+                        .distinct()
+                        .count() > 1;
+
+                int lastDisk = -1;
                 for (Track t : tracks) {
+                    int disk = t.getDiskNumber();
+                    if (hasMultipleDisks && disk != lastDisk) {
+                        if (lastDisk != -1) {
+                            pnlModalContent.add(Box.createVerticalStrut(10));
+                        }
+                        JLabel diskHeader = new JLabel("Disk " + disk + ":");
+                        diskHeader.setForeground(Color.WHITE);
+                        diskHeader.setFont(diskHeader.getFont().deriveFont(Font.BOLD, 14f));
+                        diskHeader.setAlignmentX(Component.CENTER_ALIGNMENT);
+                        pnlModalContent.add(diskHeader);
+                        pnlModalContent.add(Box.createVerticalStrut(4));
+                        lastDisk = disk;
+                    }
+
                     JLabel lblTrack = new JLabel(t.getPaddedTrackPosition() + ". " + t.getTitle() + " (" + t.getArtist() + ")");
                     lblTrack.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                     lblTrack.setForeground(Color.LIGHT_GRAY);

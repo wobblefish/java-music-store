@@ -10,6 +10,8 @@ public class Track implements Release {
     private int duration;
     @SerializedName("track_position")
     private int trackPosition;
+    @SerializedName("disk_number")
+    private int diskNumber;
     private String preview;
 
 
@@ -25,6 +27,8 @@ public class Track implements Release {
     public int getDuration() { return duration; }
     
     public int getTrackPosition() { return trackPosition; }
+
+    public int getDiskNumber() { return diskNumber; }
 
     public String getPaddedTrackPosition() {
         return String.format("%02d", trackPosition);
