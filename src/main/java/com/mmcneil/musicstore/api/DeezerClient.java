@@ -54,7 +54,7 @@ public class DeezerClient {
         return tracks;
     }
 
-    public static Album getAlbumDetails(int albumId) {
+    public static Album getAlbumDetails(long albumId) {
         String url = "https://api.deezer.com/album/" + albumId;
         HttpResponse<String> response = Unirest.get(url).asString();
         System.out.println("=== RAW JSON ===");

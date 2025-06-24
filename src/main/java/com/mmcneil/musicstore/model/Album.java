@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
 public class Album implements Release {
-    private int id;
+    private long id;
     private String title;
     private Artist artist;
     private String coverUrl;
@@ -58,7 +58,7 @@ public class Album implements Release {
     }
 
     @Override
-    public int getId() { return id; }
+    public long getId() { return id; }
 
     @Override
     public String getTitle() { return title; }
