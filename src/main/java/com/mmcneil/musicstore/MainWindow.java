@@ -1,9 +1,11 @@
 package com.mmcneil.musicstore;
 
 import com.mmcneil.musicstore.api.DeezerClient;
+import com.mmcneil.musicstore.audio.Mp3Player;
 import com.mmcneil.musicstore.model.Album;
 import com.mmcneil.musicstore.model.Release;
 import com.mmcneil.musicstore.model.Track;
+import com.mmcneil.musicstore.ui.ReleaseDetailsDialog;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,7 +13,6 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,13 +20,18 @@ import java.util.List;
 public class MainWindow {
 
     private JPanel resultPanel;
+    private final Mp3Player mp3Player = new Mp3Player();
     private JFrame frame;
     private JTextField txtSearch;
-    private static final Color BG_COLOR = Color.DARK_GRAY;
+    public static final Color BG_COLOR = Color.DARK_GRAY;
     private List<Track> trackResults = new ArrayList<>();
     private List<Album> albumResults = new ArrayList<>();
     private static final int cardWidth = 160;
     private static final int cardHeight = 200;
+    List<Track> currentTracks;
+    int[] currentTrackIndex;
+    boolean[] isPlaying;
+    boolean[] isPaused;
 
     public void createWindow() {
         frame = new JFrame("Music Store");
@@ -186,144 +192,7 @@ public class MainWindow {
     }
 
     private void showReleaseDetails(Release release) {
-        JDialog dialogModal = new JDialog((Frame) null, "Album Details", true);
-        dialogModal.setLayout(new BorderLayout());
-
-        JPanel pnlModalContent = new JPanel();
-        pnlModalContent.setLayout(new BoxLayout(pnlModalContent, BoxLayout.Y_AXIS));
-        pnlModalContent.setBackground(BG_COLOR);
-        pnlModalContent.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
-
-        try {
-            URL imageUrl = new URL(release.getCoverMedium());
-            ImageIcon icon = new ImageIcon((imageUrl));
-            Image scaledImg = icon.getImage().getScaledInstance(300,300, Image.SCALE_SMOOTH);
-            JLabel coverLabel = new JLabel(new ImageIcon(scaledImg));
-            coverLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-            pnlModalContent.add(coverLabel);
-        } catch (Exception ex) {
-            JLabel lblError = new JLabel("No Image Available");
-            lblError.setForeground(Color.WHITE);
-            lblError.setAlignmentX(Component.CENTER_ALIGNMENT);
-            pnlModalContent.add(lblError);
-        }
-
-        JLabel lblTitle = new JLabel(release.getTitle());
-        lblTitle.setForeground(Color.WHITE);
-        lblTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        JLabel lblArtist = new JLabel(release.getArtist());
-        lblArtist.setForeground(Color.LIGHT_GRAY);
-        lblArtist.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-
-        //show type
-        JLabel lblType = new JLabel("Type: " + release.getType());
-        lblType.setForeground(Color.LIGHT_GRAY);
-        lblType.setAlignmentX(Component.CENTER_ALIGNMENT);
-        pnlModalContent.add(lblTitle);
-        pnlModalContent.add(lblArtist);
-        pnlModalContent.add(Box.createRigidArea(new Dimension(0,10)));
-        pnlModalContent.add(lblType);
-
-        // Anything that differs between track and album views
-        if (release instanceof Track) {
-            // Specific handling for tracks
-            Track track = (Track) release;
-            // show duration
-            JLabel lblDuration = new JLabel("Duration: " + track.getDuration());
-            lblDuration.setForeground(Color.LIGHT_GRAY);
-            lblDuration.setAlignmentX(Component.CENTER_ALIGNMENT);
-            pnlModalContent.add(lblDuration);
-        } else if (release instanceof Album) {
-            // Specific handling for albums
-            Album album = (Album) release;
-
-            // show label
-            Album fullAlbum = DeezerClient.getAlbumDetails(album.getId());
-            String label = fullAlbum.getLabel();
-            JLabel lblLabel = new JLabel("Label: " + label);
-            lblLabel.setForeground(Color.LIGHT_GRAY);
-            lblLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-            pnlModalContent.add(lblLabel);
-            
-            // show tracklist (if available)
-            List<Track> tracks = DeezerClient.getAlbumTracks(album.getTracklist());
-            if (tracks != null && !tracks.isEmpty()) {
-                pnlModalContent.add(Box.createVerticalStrut(12));
-                JLabel lblTracklist = new JLabel("Tracklist:");
-                lblTracklist.setForeground(Color.LIGHT_GRAY);
-                lblTracklist.setAlignmentX(Component.CENTER_ALIGNMENT);
-                pnlModalContent.add(lblTracklist);
-
-                boolean hasMultipleDisks = tracks.stream()
-                        .map(Track::getDiskNumber)
-                        .distinct()
-                        .count() > 1;
-
-                int lastDisk = -1;
-                for (Track t : tracks) {
-                    int disk = t.getDiskNumber();
-                    if (hasMultipleDisks && disk != lastDisk) {
-                        if (lastDisk != -1) {
-                            pnlModalContent.add(Box.createVerticalStrut(10));
-                        }
-                        JLabel diskHeader = new JLabel("Disk " + disk + ":");
-                        diskHeader.setForeground(Color.WHITE);
-                        diskHeader.setFont(diskHeader.getFont().deriveFont(Font.BOLD, 14f));
-                        diskHeader.setAlignmentX(Component.CENTER_ALIGNMENT);
-                        pnlModalContent.add(diskHeader);
-                        pnlModalContent.add(Box.createVerticalStrut(4));
-                        lastDisk = disk;
-                    }
-
-                    JLabel lblTrack = new JLabel(t.getPaddedTrackPosition() + ". " + t.getTitle() + " (" + t.getArtist() + ")");
-                    lblTrack.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                    lblTrack.setForeground(Color.LIGHT_GRAY);
-                    lblTrack.setAlignmentX(Component.CENTER_ALIGNMENT);
-                    String previewUrl = t.getPreview();
-                    lblTrack.addMouseListener(new MouseAdapter() {
-                        @Override
-                        public void mouseClicked(MouseEvent e) {
-                            try {
-                                Desktop.getDesktop().browse(new URI(previewUrl));
-                            } catch (Exception ex) {
-                                ex.printStackTrace();
-                            }
-                        }
-                    });
-                    pnlModalContent.add(lblTrack);
-                }
-            } else {
-                JLabel lblNoTracks = new JLabel("No tracks available.");
-                lblNoTracks.setForeground(Color.LIGHT_GRAY);
-                lblNoTracks.setAlignmentX(Component.CENTER_ALIGNMENT);
-                pnlModalContent.add(lblNoTracks);
-            }
-            
-        }
-
-
-        JScrollPane scrollPane = new JScrollPane(pnlModalContent);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setBorder(null); // Optional: removes the default border for cleaner look
-        dialogModal.add(scrollPane, BorderLayout.CENTER);
-
-        JButton btnCloseModal = new JButton("Close");
-        btnCloseModal.addActionListener(e -> dialogModal.dispose());
-        dialogModal.add(btnCloseModal, BorderLayout.SOUTH);
-
-        // Responsive sizing
-        dialogModal.pack();
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int maxWidth = (int) (screenSize.width * 0.8);
-        int maxHeight = (int) (screenSize.height * 0.8);
-        Dimension preferred = dialogModal.getPreferredSize();
-        int width = Math.min(preferred.width, maxWidth);
-        int height = Math.min(preferred.height, maxHeight);
-        dialogModal.setSize(width, height);
-
-        dialogModal.setLocationRelativeTo(null);
-        dialogModal.setVisible(true);
+        ReleaseDetailsDialog dialog = new ReleaseDetailsDialog(frame, release, mp3Player);
+        dialog.setVisible(true);
     }
 }
